@@ -209,29 +209,36 @@ IHTMLDocument2 *WebForm::GetDoc()
 void WebForm::RunJSFunction(std::string cmd)
 {
 	IHTMLDocument2 *doc = GetDoc();
-	IHTMLWindow2 *win = NULL;
-	doc->get_parentWindow(&win);
+	if (doc != NULL) {
+		IHTMLWindow2 *win = NULL;
+		doc->get_parentWindow(&win);
 
-	if (win != NULL) {
-		int lenW = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cmd.c_str(), -1, NULL, 0);
-		BSTR bstrCmd = SysAllocStringLen(0, lenW);
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cmd.c_str(), -1, bstrCmd, lenW);
+		if (win != NULL) {
+			int lenW = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cmd.c_str(), -1, NULL, 0);
+			BSTR bstrCmd = SysAllocStringLen(0, lenW);
+			MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cmd.c_str(), -1, bstrCmd, lenW);
 
-		VARIANT v;
-		VariantInit(&v);
-		win->execScript(bstrCmd, NULL, &v);
+			VARIANT v;
+			VariantInit(&v);
+			win->execScript(bstrCmd, NULL, &v);
 
-		VariantClear(&v);
-		SysFreeString(bstrCmd);
-		win->Release();
+			VariantClear(&v);
+			SysFreeString(bstrCmd);
+			win->Release();
+		}
+
+		doc->Release();
 	}
-
-	doc->Release();
 }
 
 void WebForm::AddCustomObject(IDispatch *custObj, std::string name)
 {
 	IHTMLDocument2 *doc = GetDoc();
+
+	if (doc == NULL) {
+		return;
+	}
+
 	IHTMLWindow2 *win = NULL;
 	doc->get_parentWindow(&win);
 	doc->Release();
