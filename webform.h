@@ -42,7 +42,6 @@ private:
 	IHTMLDocument2 *GetDoc();
 public:
 	HWND hWnd;
-	HWND hhost;
 
 	WebForm(WebformDispatchHandler *wdh);
 	~WebForm();

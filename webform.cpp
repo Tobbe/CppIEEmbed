@@ -11,14 +11,14 @@
 
 WebForm::WebForm(WebformDispatchHandler *wdh) :
 	ref(1), ibrowser(NULL), cookie(0), isnaving(0), url(NULL), kurl(NULL),
-	hasScrollbars(false), hhost(NULL), hWnd(NULL), dispatchHandler(wdh)
+	hasScrollbars(false), hWnd(NULL), dispatchHandler(wdh)
 {
 }
 
 void WebForm::setupOle()
 {
 	RECT rc;
-	GetClientRect(hhost, &rc);
+	GetClientRect(hWnd, &rc);
 
 	HRESULT hr;
 	IOleObject* iole = 0;
@@ -45,7 +45,7 @@ void WebForm::setupOle()
 		return;
 	}
 
-	hr = iole->DoVerb(OLEIVERB_SHOW, 0, this, 0, hhost, &rc);
+	hr = iole->DoVerb(OLEIVERB_SHOW, 0, this, 0, hWnd, &rc);
 	if (hr != S_OK) {
 		iole->Release();
 		return;
@@ -161,8 +161,8 @@ void WebForm::Go(const TCHAR *url)
 
 	// (Special case: maybe it's already loaded by the time we get here!)
 	if ((isnaving & 2) == 0) {
-		WPARAM w = (GetWindowLong(hhost, GWL_ID) & 0xFFFF) | ((WEBFN_LOADED & 0xFFFF) << 16);
-		PostMessage(GetParent(hhost), WM_COMMAND, w, (LPARAM)hhost);
+		WPARAM w = (GetWindowLong(hWnd, GWL_ID) & 0xFFFF) | ((WEBFN_LOADED & 0xFFFF) << 16);
+		PostMessage(GetParent(hWnd), WM_COMMAND, w, (LPARAM)hWnd);
 	}
 
 	isnaving &= ~4;
@@ -286,8 +286,8 @@ void WebForm::DocumentComplete(const wchar_t *)
 		return; // "4" means that we're in the middle of Go(), so the notification will be handled there
 	}
 
-	WPARAM w = (GetWindowLong(hhost, GWL_ID) & 0xFFFF) | ((WEBFN_LOADED & 0xFFFF) << 16);
-	PostMessage(GetParent(hhost), WM_COMMAND, w, (LPARAM)hhost);
+	WPARAM w = (GetWindowLong(hWnd, GWL_ID) & 0xFFFF) | ((WEBFN_LOADED & 0xFFFF) << 16);
+	PostMessage(GetParent(hWnd), WM_COMMAND, w, (LPARAM)hWnd);
 }
 
 HRESULT STDMETHODCALLTYPE WebForm::QueryInterface(REFIID riid, void **ppv)
@@ -427,8 +427,6 @@ void WebForm::create(HWND hWndParent, HINSTANCE hInstance, UINT id, bool showScr
 		WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
 		0, 0, 100, 100, hWndParent, (HMENU)(LONG_PTR)id, hInstance, (LPVOID)this);
 
-	hhost = hWnd;
-
 	setupOle();
 }
 
@@ -504,7 +502,7 @@ HRESULT STDMETHODCALLTYPE WebForm::GetExternal(IDispatch **ppDispatch)
 
 HRESULT STDMETHODCALLTYPE WebForm::GetWindow(HWND *phwnd)
 {
-	*phwnd = hhost;
+	*phwnd = hWnd;
 
 	return S_OK;
 }
@@ -517,11 +515,11 @@ HRESULT STDMETHODCALLTYPE WebForm::GetWindowContext(IOleInPlaceFrame **ppFrame,
 	AddRef();
 	*ppDoc = NULL;
 	info->fMDIApp = FALSE;
-	info->hwndFrame = hhost;
+	info->hwndFrame = hWnd;
 	info->haccel = 0;
 	info->cAccelEntries = 0;
-	GetClientRect(hhost, lprcPosRect);
-	GetClientRect(hhost, lprcClipRect);
+	GetClientRect(hWnd, lprcPosRect);
+	GetClientRect(hWnd, lprcClipRect);
 
 	return S_OK;
 }
