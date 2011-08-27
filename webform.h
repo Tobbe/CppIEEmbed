@@ -26,14 +26,10 @@
 class WebForm : public IUnknown, TOleClientSite, TDispatch, TDocHostShowUI, TDocHostUIHandler, TOleInPlaceSite, TOleInPlaceFrame {
 #pragma warning(pop)
 private:
-	IHTMLDocument2 *GetDoc();
-public:
 	long ref;
 	unsigned int isnaving;    // bitmask: 4=haven't yet finished Navigate call, 2=haven't yet received DocumentComplete, 1=haven't yet received BeforeNavigate
 
-	HWND hWnd;
 	UINT id;
-	HWND hhost;               // This is the window that hosts us
 	IWebBrowser2 *ibrowser;   // Our pointer to the browser itself. Released in Close().
 	DWORD cookie;             // By this cookie shall the watcher be known
 
@@ -42,6 +38,11 @@ public:
 	TCHAR *kurl;              // Key\0Value\0Key2\0Value2\0\0 arguments for the url just clicked on
 
 	WebformDispatchHandler *dispatchHandler;
+
+	IHTMLDocument2 *GetDoc();
+public:
+	HWND hWnd;
+	HWND hhost;
 
 	WebForm(WebformDispatchHandler *wdh);
 	~WebForm();
