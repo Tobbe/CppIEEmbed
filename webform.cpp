@@ -10,7 +10,7 @@
 #include "toleinplaceframe.h"
 
 WebForm::WebForm(WebformDispatchHandler *wdh) :
-	ref(1), ibrowser(NULL), cookie(0), isnaving(0), url(NULL), kurl(NULL),
+	ref(0), ibrowser(NULL), cookie(0), isnaving(0), url(NULL), kurl(NULL),
 	hasScrollbars(false), hWnd(NULL), dispatchHandler(wdh)
 {
 }
@@ -347,6 +347,14 @@ LRESULT CALLBACK WebForm::WebformWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 	if (msg == WM_NCCREATE) {
 		WebForm *webf = (WebForm*)((LPCREATESTRUCT(lParam))->lpCreateParams);
 		webf->hWnd = hwnd;
+		webf->setupOle();
+		if (webf->ibrowser == 0) {
+			MessageBox(NULL, "web->ibrowser is NULL", "WM_CREATE", MB_OK);
+			delete webf;
+			webf = NULL;
+		} else {
+			webf->AddRef();
+		}
 
 		#pragma warning(suppress:4244)
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)webf);
@@ -433,8 +441,6 @@ void WebForm::create(HWND hWndParent, HINSTANCE hInstance, UINT id, bool showScr
 		_T("http://tlundberg.com"),
 		WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
 		0, 0, 100, 100, hWndParent, (HMENU)(LONG_PTR)id, hInstance, (LPVOID)this);
-
-	setupOle();
 }
 
 HRESULT STDMETHODCALLTYPE WebForm::Invoke(DISPID dispIdMember, REFIID riid,
