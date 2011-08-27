@@ -8,6 +8,7 @@
 #include "webform.h"
 #include "TOleClientSite.h"
 #include "toleinplaceframe.h"
+#include "webformdispatchhandler.h"
 
 WebForm::WebForm(WebformDispatchHandler *wdh) :
 	ref(0), ibrowser(NULL), cookie(0), isnaving(0), url(NULL), kurl(NULL),

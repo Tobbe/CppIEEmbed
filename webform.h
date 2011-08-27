@@ -5,13 +5,15 @@
 #include <exdisp.h>
 #include <windows.h>
 #include <mshtmhst.h>
+#include <string>
 #include "toleclientsite.h"
 #include "toleinplacesite.h"
 #include "toleinplaceframe.h"
 #include "tdochostuihandler.h"
 #include "tdochostshowui.h"
 #include "tdispatch.h"
-#include "webformdispatchhandler.h"
+
+class WebformDispatchHandler;
 
 #define WEBFORM_CLASS (_T("WebformClass"))
 // Create a Webfrom control with CreateWindow(WEBFORM_CLASS,_T("initial-url"),...)
